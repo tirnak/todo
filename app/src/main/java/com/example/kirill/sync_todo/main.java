@@ -4,15 +4,18 @@ import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,8 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TextView;
 
 
 public class main extends ActionBarActivity {
@@ -40,6 +41,8 @@ public class main extends ActionBarActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
+
+    final String LOG_TAG = "myLogs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +165,70 @@ public class main extends ActionBarActivity {
 
         String taskName = taskNameWidget.getText().toString();
         System.out.println(taskName);
+
+        ContentValues cv = new ContentValues();
+
+
+        DBHelper dbHelper = new DBHelper(getApplicationContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        System.out.println("--- Insert in mytable: ---");
+        // подготовим данные для вставки в виде пар: наименование столбца - значение
+
+        cv.put("taskName", taskName);
+
+        // вставляем запись и получаем ее ID
+        long rowID = db.insert("mytable", null, cv);
+        System.out.println("row inserted, ID = " + rowID);
+
+        System.out.println("--- Rows in mytable: ---");
+        // делаем запрос всех данных из таблицы mytable, получаем Cursor
+        Cursor c = db.query("mytable", null, null, null, null, null, null);
+
+        // ставим позицию курсора на первую строку выборки
+        // если в выборке нет строк, вернется false
+        if (c.moveToFirst()) {
+
+            // определяем номера столбцов по имени в выборке
+            int idColIndex = c.getColumnIndex("id");
+            int nameColIndex = c.getColumnIndex("taskName");
+
+            do {
+                // получаем значения по номерам столбцов и пишем все в лог
+                System.out.println("ID = " + c.getInt(idColIndex) +
+                                ", name = " + c.getString(nameColIndex));
+                // переход на следующую строку
+                // а если следующей нет (текущая - последняя), то false - выходим из цикла
+            } while (c.moveToNext());
+        } else
+            Log.d(LOG_TAG, "0 rows");
+        c.close();
+
         addTaskLayout.setVisibility(View.INVISIBLE);
+
+        dbHelper.close();
+    }
+
+    class DBHelper extends SQLiteOpenHelper {
+
+        public DBHelper(Context context) {
+            // конструктор суперкласса
+            super(context, "myDB", null, 1);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            Log.d(LOG_TAG, "--- onCreate database ---");
+            // создаем таблицу с полями
+            db.execSQL("create table mytable ("
+                    + "id integer primary key autoincrement,"
+                    + "taskName text" + ");");
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        }
     }
 
 }
