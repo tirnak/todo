@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -153,6 +154,15 @@ public class main extends ActionBarActivity {
     public void addTask(View view) {
         LinearLayout addTaskLayout = (LinearLayout) findViewById(R.id.taskAddLayout);
         addTaskLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void createTask(View view) {
+        LinearLayout addTaskLayout = (LinearLayout) findViewById(R.id.taskAddLayout);
+        EditText taskNameWidget = (EditText) findViewById(R.id.taskNameEditText);
+
+        String taskName = taskNameWidget.getText().toString();
+        System.out.println(taskName);
+        addTaskLayout.setVisibility(View.INVISIBLE);
     }
 
 }
