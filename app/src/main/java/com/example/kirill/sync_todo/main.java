@@ -2,8 +2,6 @@ package com.example.kirill.sync_todo;
 
 import java.util.Locale;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -15,7 +13,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,6 +20,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 
 public class main extends ActionBarActivity {
@@ -42,14 +41,10 @@ public class main extends ActionBarActivity {
      */
     ViewPager mViewPager;
 
-    final String LOG_TAG = "myLogs";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -61,9 +56,39 @@ public class main extends ActionBarActivity {
 
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        DBHelper dbHelper = new DBHelper(getApplicationContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Cursor c = db.query("mytable", null, null, null, null, null, null);
+
+        // ставим позицию курсора на первую строку выборки
+        // если в выборке нет строк, вернется false
+        if (c.moveToFirst()) {
+
+            // определяем номера столбцов по имени в выборке
+            int idColIndex = c.getColumnIndex("id");
+            int nameColIndex = c.getColumnIndex("taskName");
+
+            do {
+                LinearLayout mainLayout = (LinearLayout) findViewById(R.id.mainLayout);
+                TextView task = new TextView(main.this);
+                task.setText(c.getString(nameColIndex));
+                task.setContentDescription("task" + c.getInt(idColIndex));
+                mainLayout.addView(task);
+
+                // получаем значения по номерам столбцов и пишем все в лог
+                System.out.println("ID = " + c.getInt(idColIndex) +
+                        ", name = " + c.getString(nameColIndex));
+                // переход на следующую строку
+                // а если следующей нет (текущая - последняя), то false - выходим из цикла
+            } while (c.moveToNext());
+        } else
+            System.out.println("0 rows");
+        c.close();
+
+        dbHelper.close();
+
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
@@ -196,12 +221,12 @@ public class main extends ActionBarActivity {
             do {
                 // получаем значения по номерам столбцов и пишем все в лог
                 System.out.println("ID = " + c.getInt(idColIndex) +
-                                ", name = " + c.getString(nameColIndex));
+                        ", name = " + c.getString(nameColIndex));
                 // переход на следующую строку
                 // а если следующей нет (текущая - последняя), то false - выходим из цикла
             } while (c.moveToNext());
         } else
-            Log.d(LOG_TAG, "0 rows");
+            System.out.println("0 rows");
         c.close();
 
         addTaskLayout.setVisibility(View.INVISIBLE);
@@ -218,7 +243,7 @@ public class main extends ActionBarActivity {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            Log.d(LOG_TAG, "--- onCreate database ---");
+            System.out.println("--- onCreate database ---");
             // создаем таблицу с полями
             db.execSQL("create table mytable ("
                     + "id integer primary key autoincrement,"
