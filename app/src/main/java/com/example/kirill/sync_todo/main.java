@@ -4,6 +4,7 @@ import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -41,53 +42,18 @@ public class main extends ActionBarActivity {
      */
     ViewPager mViewPager;
 
+    private LinearLayout mainLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
+        mainLayout = (LinearLayout) findViewById(R.id.mainLayout);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        DBHelper dbHelper = new DBHelper(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.query("mytable", null, null, null, null, null, null);
-
-        // ставим позицию курсора на первую строку выборки
-        // если в выборке нет строк, вернется false
-        if (c.moveToFirst()) {
-
-            // определяем номера столбцов по имени в выборке
-            int idColIndex = c.getColumnIndex("id");
-            int nameColIndex = c.getColumnIndex("taskName");
-
-            do {
-                LinearLayout mainLayout = (LinearLayout) findViewById(R.id.mainLayout);
-                TextView task = new TextView(main.this);
-                task.setText(c.getString(nameColIndex));
-                task.setContentDescription("task" + c.getInt(idColIndex));
-                mainLayout.addView(task);
-
-                // получаем значения по номерам столбцов и пишем все в лог
-                System.out.println("ID = " + c.getInt(idColIndex) +
-                        ", name = " + c.getString(nameColIndex));
-                // переход на следующую строку
-                // а если следующей нет (текущая - последняя), то false - выходим из цикла
-            } while (c.moveToNext());
-        } else
-            System.out.println("0 rows");
-        c.close();
-
-        dbHelper.close();
 
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
@@ -179,35 +145,13 @@ public class main extends ActionBarActivity {
         }
     }
 
-    public void addTask(View view) {
-        LinearLayout addTaskLayout = (LinearLayout) findViewById(R.id.taskAddLayout);
-        addTaskLayout.setVisibility(View.VISIBLE);
-    }
+    @Override
+    public void onResume() {
 
-    public void createTask(View view) {
-        LinearLayout addTaskLayout = (LinearLayout) findViewById(R.id.taskAddLayout);
-        EditText taskNameWidget = (EditText) findViewById(R.id.taskNameEditText);
-
-        String taskName = taskNameWidget.getText().toString();
-        System.out.println(taskName);
-
-        ContentValues cv = new ContentValues();
-
+        super.onResume();
 
         DBHelper dbHelper = new DBHelper(getApplicationContext());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        System.out.println("--- Insert in mytable: ---");
-        // подготовим данные для вставки в виде пар: наименование столбца - значение
-
-        cv.put("taskName", taskName);
-
-        // вставляем запись и получаем ее ID
-        long rowID = db.insert("mytable", null, cv);
-        System.out.println("row inserted, ID = " + rowID);
-
-        System.out.println("--- Rows in mytable: ---");
-        // делаем запрос всех данных из таблицы mytable, получаем Cursor
         Cursor c = db.query("mytable", null, null, null, null, null, null);
 
         // ставим позицию курсора на первую строку выборки
@@ -219,6 +163,12 @@ public class main extends ActionBarActivity {
             int nameColIndex = c.getColumnIndex("taskName");
 
             do {
+
+                TextView task = new TextView(main.this);
+                task.setText(c.getString(nameColIndex));
+                task.setContentDescription("task" + c.getInt(idColIndex));
+                mainLayout.addView(task);
+
                 // получаем значения по номерам столбцов и пишем все в лог
                 System.out.println("ID = " + c.getInt(idColIndex) +
                         ", name = " + c.getString(nameColIndex));
@@ -229,31 +179,14 @@ public class main extends ActionBarActivity {
             System.out.println("0 rows");
         c.close();
 
-        addTaskLayout.setVisibility(View.INVISIBLE);
-
         dbHelper.close();
     }
 
-    class DBHelper extends SQLiteOpenHelper {
+    public void addTask(View view) {
 
-        public DBHelper(Context context) {
-            // конструктор суперкласса
-            super(context, "myDB", null, 1);
-        }
+        Intent intent = new Intent(this, addTask.class);
+        startActivity(intent);
 
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            System.out.println("--- onCreate database ---");
-            // создаем таблицу с полями
-            db.execSQL("create table mytable ("
-                    + "id integer primary key autoincrement,"
-                    + "taskName text" + ");");
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-        }
     }
 
 }
