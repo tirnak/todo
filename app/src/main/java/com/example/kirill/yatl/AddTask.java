@@ -1,17 +1,11 @@
-package com.example.kirill.sync_todo;
+package com.example.kirill.yatl;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-
-import com.example.kirill.sync_todo.R;
 
 public class AddTask extends ActionBarActivity {
 

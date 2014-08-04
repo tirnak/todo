@@ -1,13 +1,10 @@
-package com.example.kirill.sync_todo;
+package com.example.kirill.yatl;
 
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.v7.app.ActionBarActivity;
-import android.text.Layout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 /**

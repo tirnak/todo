@@ -1,4 +1,4 @@
-package com.example.kirill.sync_todo;
+package com.example.kirill.yatl;
 
 public class Task {
     public String name;

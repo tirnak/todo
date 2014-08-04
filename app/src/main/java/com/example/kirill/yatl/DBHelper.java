@@ -1,4 +1,4 @@
-package com.example.kirill.sync_todo;
+package com.example.kirill.yatl;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

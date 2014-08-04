@@ -1,4 +1,4 @@
-package com.example.kirill.sync_todo;
+package com.example.kirill.yatl;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -1,8 +1,11 @@
-package com.example.kirill.sync_todo;
+package com.example.kirill.yatl;
 
 import java.util.Locale;
 
+
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import com.wareninja.android.opensource.oauth2login.*;
 
 
 public class main extends ActionBarActivity {
@@ -43,6 +47,28 @@ public class main extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        final Context tmpContext = this;
+
+        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                Auth auth = new Auth(tmpContext);
+
+                return auth.asdf();
+            }
+
+            @Override
+            protected void onPostExecute(String token) {
+                System.out.println("token1 is" + token);
+            }
+        };
+
+        task.execute();
+
+        Intent intent = new Intent(this, AppMainExample.class);
+        startActivity(intent);
+
 
     }
 

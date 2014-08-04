@@ -2,14 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 20
-    buildToolsVersion "20.0.0"
-
+    buildToolsVersion '20.0.0'
     defaultConfig {
-        applicationId "com.example.kirill.sync_todo"
+        applicationId 'com.example.kirill.sync_todo'
         minSdkVersion 10
         targetSdkVersion 20
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
     }
     buildTypes {
         release {
@@ -17,9 +16,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+    }
 }
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:19.+'
+    compile 'com.android.support:appcompat-v7:20.+'
+    compile 'com.google.api-client:google-api-client:1.18.0-rc'
+    compile 'com.google.android.gms:play-services:+'
+    compile project(':genericoauth2loginforandroidmaster')
 }
