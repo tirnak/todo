@@ -2,12 +2,7 @@ package com.example.kirill.sync_todo;
 
 import java.util.Locale;
 
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,10 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 
 public class main extends ActionBarActivity {
@@ -42,14 +34,16 @@ public class main extends ActionBarActivity {
      */
     ViewPager mViewPager;
 
-    private LinearLayout mainLayout;
+    /**
+     * Initiate task handler
+     */
+    TaskHandler taskHandler = new TaskHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mainLayout = (LinearLayout) findViewById(R.id.mainLayout);
     }
 
     @Override
@@ -150,41 +144,14 @@ public class main extends ActionBarActivity {
 
         super.onResume();
 
-        DBHelper dbHelper = new DBHelper(getApplicationContext());
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.query("mytable", null, null, null, null, null, null);
+        LinearLayout taskWrapperLayout = (LinearLayout) findViewById(R.id.taskWrapperLayout);
+        taskHandler.refreshTasks(taskWrapperLayout);
 
-        // ставим позицию курсора на первую строку выборки
-        // если в выборке нет строк, вернется false
-        if (c.moveToFirst()) {
-
-            // определяем номера столбцов по имени в выборке
-            int idColIndex = c.getColumnIndex("id");
-            int nameColIndex = c.getColumnIndex("taskName");
-
-            do {
-
-                TextView task = new TextView(main.this);
-                task.setText(c.getString(nameColIndex));
-                task.setContentDescription("task" + c.getInt(idColIndex));
-                mainLayout.addView(task);
-
-                // получаем значения по номерам столбцов и пишем все в лог
-                System.out.println("ID = " + c.getInt(idColIndex) +
-                        ", name = " + c.getString(nameColIndex));
-                // переход на следующую строку
-                // а если следующей нет (текущая - последняя), то false - выходим из цикла
-            } while (c.moveToNext());
-        } else
-            System.out.println("0 rows");
-        c.close();
-
-        dbHelper.close();
     }
 
     public void addTask(View view) {
 
-        Intent intent = new Intent(this, addTask.class);
+        Intent intent = new Intent(this, AddTask.class);
         startActivity(intent);
 
     }
