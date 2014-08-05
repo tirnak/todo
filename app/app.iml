@@ -69,7 +69,6 @@
     <orderEntry type="library" exported="" name="google-http-client-1.18.0-rc" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-20.0.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-20.0.0" level="project" />
-    <orderEntry type="module" module-name="genericoauth2loginforandroidmaster" exported="" />
   </component>
 </module>
 

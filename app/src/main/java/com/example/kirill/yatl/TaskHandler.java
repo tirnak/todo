@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -24,7 +25,7 @@ public class TaskHandler {
 
         DBHelper dbHelper = new DBHelper(callingClassScope);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.query("mytable", null, null, null, null, null, null);
+        Cursor c = db.query("task", null, null, null, null, null, null);
 
         // ставим позицию курсора на первую строку выборки
         // если в выборке нет строк, вернется false
@@ -33,12 +34,15 @@ public class TaskHandler {
             // определяем номера столбцов по имени в выборке
             int idColIndex = c.getColumnIndex("id");
             int nameColIndex = c.getColumnIndex("taskName");
+            int doneColIndex = c.getColumnIndex("done");
 
             do {
-                TextView task = new TextView(callingClassScope);
-                task.setText(c.getString(nameColIndex));
-                task.setContentDescription("task" + c.getInt(idColIndex));
-                taskWrapperLayout.addView(task);
+                if (c.getInt(doneColIndex) == 0) {
+                    CheckBox task = new CheckBox(callingClassScope);
+                    task.setText(c.getString(nameColIndex));
+                    task.setContentDescription("task" + c.getInt(idColIndex));
+                    taskWrapperLayout.addView(task);
+                }
 
                 // получаем значения по номерам столбцов и пишем все в лог
                 System.out.println("ID = " + c.getInt(idColIndex) +
@@ -59,13 +63,13 @@ public class TaskHandler {
         DBHelper dbHelper = new DBHelper(callingClassScope);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        System.out.println("--- Insert in mytable: ---");
+        System.out.println("--- Insert in task: ---");
         // подготовим данные для вставки в виде пар: наименование столбца - значение
 
         cv.put("taskName", task.name);
 
         // вставляем запись и получаем ее ID
-        long rowID = db.insert("mytable", null, cv);
+        long rowID = db.insert("task", null, cv);
         System.out.println("row inserted, ID = " + rowID);
 
         dbHelper.close();

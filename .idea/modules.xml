@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Sync_todo.iml" filepath="$PROJECT_DIR$/Sync_todo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/genericoauth2loginforandroidmaster/genericoauth2loginforandroidmaster.iml" filepath="$PROJECT_DIR$/genericoauth2loginforandroidmaster/genericoauth2loginforandroidmaster.iml" />
       <module fileurl="file://$PROJECT_DIR$/todo.iml" filepath="$PROJECT_DIR$/todo.iml" />
     </modules>
   </component>

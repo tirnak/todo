@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import com.wareninja.android.opensource.oauth2login.*;
 
 
 public class main extends ActionBarActivity {
@@ -65,10 +64,6 @@ public class main extends ActionBarActivity {
         };
 
         task.execute();
-
-        Intent intent = new Intent(this, AppMainExample.class);
-        startActivity(intent);
-
 
     }
 
