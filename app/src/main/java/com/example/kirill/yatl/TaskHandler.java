@@ -23,9 +23,20 @@ public class TaskHandler {
         callingClassScope = newCallingClassScope;
     }
 
-    public void refreshTasks(LinearLayout taskWrapperLayout) {
+    public void refreshTasks() {
 
-        taskWrapperLayout.removeAllViews();
+        LinearLayout activeTaskWrapperLayout = (LinearLayout) callingClassScope.pagerAdapter.findViewById(
+                0,
+                R.id.taskWrapperLayout
+        );
+
+        LinearLayout doneTaskWrapperLayout = (LinearLayout) callingClassScope.pagerAdapter.findViewById(
+                1,
+                R.id.taskWrapperLayout
+        );
+
+        activeTaskWrapperLayout.removeAllViews();
+        doneTaskWrapperLayout.removeAllViews();
 
         DBHelper dbHelper = new DBHelper(callingClassScope);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -41,25 +52,36 @@ public class TaskHandler {
             int doneColIndex = c.getColumnIndex("done");
 
             do {
+
+                LinearLayout layoutToInsert = null;
+
                 if (c.getInt(doneColIndex) == 0) {
-                    CheckBox task = new CheckBox(callingClassScope);
-
-                    final TaskHandler taskHandler = this;
-
-                    task.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                        @Override
-                        public void onCheckedChanged(CompoundButton task, boolean isChecked) {
-                            taskHandler.finish((CheckBox)task);
-                        }
-                    });
-                    task.setText(c.getString(nameColIndex));
-                    task.setContentDescription("task" + c.getInt(idColIndex));
-                    taskWrapperLayout.addView(task);
+                    layoutToInsert = activeTaskWrapperLayout;
+                } else {
+                    layoutToInsert = doneTaskWrapperLayout;
                 }
+
+                CheckBox task = new CheckBox(callingClassScope);
+
+                final TaskHandler taskHandler = this;
+
+                task.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton task, boolean isChecked) {
+                        taskHandler.switchState((CheckBox) task);
+
+
+                    }
+                });
+                task.setText(c.getString(nameColIndex));
+                task.setContentDescription("task" + c.getInt(idColIndex));
+
+                layoutToInsert.addView(task);
 
                 // получаем значения по номерам столбцов и пишем все в лог
                 System.out.println("ID = " + c.getInt(idColIndex) +
-                        ", name = " + c.getString(nameColIndex));
+                        ", name = " + c.getString(nameColIndex) +
+                        ", done = " + c.getInt(doneColIndex));
                 // переход на следующую строку
                 // а если следующей нет (текущая - последняя), то false - выходим из цикла
             } while (c.moveToNext());
@@ -90,7 +112,7 @@ public class TaskHandler {
 
     }
 
-    public void finish (CheckBox checkBox) {
+    public void switchState(CheckBox checkBox) {
 
         //remove view
         ((ViewManager) checkBox.getParent()).removeView(checkBox);
@@ -107,12 +129,25 @@ public class TaskHandler {
         DBHelper dbHelper = new DBHelper(callingClassScope);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        ContentValues cv = new ContentValues();
-        cv.put("done", 1);
+        //update task: set done=1
 
-        System.out.println(
-            db.update(dbHelper.tableName, cv, "id = ?", new String[] {id})
-        );
+        db.execSQL(
+            " UPDATE " +
+            dbHelper.tableName +
+            " SET done = " +
+                "(CASE " +
+                    "WHEN " +
+                        "(done = 0) " +
+                    "THEN " +
+                        "1 " +
+                    "ELSE " +
+                        "0 " +
+                "END) " +
+            "WHERE " +
+                "id = " +
+                id);
+
+        dbHelper.close();
     }
 
 }

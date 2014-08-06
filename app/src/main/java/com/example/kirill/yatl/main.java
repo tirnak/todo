@@ -1,14 +1,12 @@
 package com.example.kirill.yatl;
 
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
 
-import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -21,7 +19,7 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 
 
-public class main extends ActionBarActivity {
+public class main extends FragmentActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -31,12 +29,12 @@ public class main extends ActionBarActivity {
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    SectionsPagerAdapter mSectionsPagerAdapter;
+    CustomPagerAdapter pagerAdapter;
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
+    ViewPager viewPager;
 
     /**
      * Initiate task handler
@@ -45,26 +43,46 @@ public class main extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        final Context tmpContext = this;
+        LayoutInflater inflater = LayoutInflater.from(this);
+        List<View> pages = new ArrayList<View>();
 
-        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                Auth auth = new Auth(tmpContext);
+        View page = inflater.inflate(R.layout.activity_main, null);
+        pages.add(page);
 
-                return "adsf" ;//auth.asdf();
-            }
+        page = inflater.inflate(R.layout.activity_main, null);
+        LinearLayout buttonWrapperLayout = (LinearLayout) page.findViewById(R.id.buttonWrapperLayout);
+        buttonWrapperLayout.setVisibility(View.GONE);
+        pages.add(page);
 
-            @Override
-            protected void onPostExecute(String token) {
-                System.out.println("token1 is" + token);
-            }
-        };
+        pagerAdapter = new CustomPagerAdapter(pages);
+        viewPager = new ViewPager(this);
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setCurrentItem(0);
 
-        task.execute();
+        setContentView(viewPager);
+
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_main);
+//
+//        final Context tmpContext = this;
+//
+//        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+//            @Override
+//            protected String doInBackground(Void... params) {
+//                Auth auth = new Auth(tmpContext);
+//
+//                return "adsf" ;//auth.asdf();
+//            }
+//
+//            @Override
+//            protected void onPostExecute(String token) {
+//                System.out.println("token1 is" + token);
+//            }
+//        };
+//        task.execute();
 
     }
 
@@ -86,46 +104,6 @@ public class main extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
-        }
-
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
-                case 2:
-                    return getString(R.string.title_section3).toUpperCase(l);
-            }
-            return null;
-        }
     }
 
     /**
@@ -166,8 +144,17 @@ public class main extends ActionBarActivity {
 
         super.onResume();
 
-        LinearLayout taskWrapperLayout = (LinearLayout) findViewById(R.id.taskWrapperLayout);
-        taskHandler.refreshTasks(taskWrapperLayout);
+        LinearLayout activeTaskWrapperLayout = (LinearLayout) pagerAdapter.findViewById(
+                0,
+                R.id.taskWrapperLayout
+        );
+
+        LinearLayout doneTaskWrapperLayout = (LinearLayout) pagerAdapter.findViewById(
+                1,
+                R.id.taskWrapperLayout
+        );
+
+        taskHandler.refreshTasks();
 
     }
 
@@ -178,12 +165,6 @@ public class main extends ActionBarActivity {
 
     }
 
-    public void onCheckboxClicked(View view) {
-        // Is the view now checked?
-        CheckBox checkBox = (CheckBox) view;
 
-        taskHandler.finish(checkBox);
-
-    }
 
 }
