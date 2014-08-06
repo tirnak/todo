@@ -4,9 +4,13 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.view.ViewManager;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by kirill on 8/4/14.
@@ -25,7 +29,7 @@ public class TaskHandler {
 
         DBHelper dbHelper = new DBHelper(callingClassScope);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor c = db.query("task", null, null, null, null, null, null);
+        Cursor c = db.query(dbHelper.tableName, null, null, null, null, null, null);
 
         // ставим позицию курсора на первую строку выборки
         // если в выборке нет строк, вернется false
@@ -39,6 +43,15 @@ public class TaskHandler {
             do {
                 if (c.getInt(doneColIndex) == 0) {
                     CheckBox task = new CheckBox(callingClassScope);
+
+                    final TaskHandler taskHandler = this;
+
+                    task.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton task, boolean isChecked) {
+                            taskHandler.finish((CheckBox)task);
+                        }
+                    });
                     task.setText(c.getString(nameColIndex));
                     task.setContentDescription("task" + c.getInt(idColIndex));
                     taskWrapperLayout.addView(task);
@@ -63,17 +76,43 @@ public class TaskHandler {
         DBHelper dbHelper = new DBHelper(callingClassScope);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        System.out.println("--- Insert in task: ---");
+        System.out.println("--- Insert in " + dbHelper.tableName + ": ---");
         // подготовим данные для вставки в виде пар: наименование столбца - значение
 
         cv.put("taskName", task.name);
+        cv.put("done", 0);
 
         // вставляем запись и получаем ее ID
-        long rowID = db.insert("task", null, cv);
+        long rowID = db.insert(dbHelper.tableName, null, cv);
         System.out.println("row inserted, ID = " + rowID);
 
         dbHelper.close();
 
+    }
+
+    public void finish (CheckBox checkBox) {
+
+        //remove view
+        ((ViewManager) checkBox.getParent()).removeView(checkBox);
+
+        //get task id
+        Pattern pattern = Pattern.compile("^task((\\d+))");
+        Matcher matcher = pattern.matcher(checkBox.getContentDescription());
+
+        matcher.find();
+        String id = matcher.group(1);
+        System.out.println("id is " + id);
+
+        //create db wrapper
+        DBHelper dbHelper = new DBHelper(callingClassScope);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put("done", 1);
+
+        System.out.println(
+            db.update(dbHelper.tableName, cv, "id = ?", new String[] {id})
+        );
     }
 
 }

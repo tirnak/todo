@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 
 
@@ -54,7 +55,7 @@ public class main extends ActionBarActivity {
             protected String doInBackground(Void... params) {
                 Auth auth = new Auth(tmpContext);
 
-                return auth.asdf();
+                return "adsf" ;//auth.asdf();
             }
 
             @Override
@@ -174,6 +175,14 @@ public class main extends ActionBarActivity {
 
         Intent intent = new Intent(this, AddTask.class);
         startActivity(intent);
+
+    }
+
+    public void onCheckboxClicked(View view) {
+        // Is the view now checked?
+        CheckBox checkBox = (CheckBox) view;
+
+        taskHandler.finish(checkBox);
 
     }
 
