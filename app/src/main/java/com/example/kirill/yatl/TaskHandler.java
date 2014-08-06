@@ -25,12 +25,12 @@ public class TaskHandler {
 
     public void refreshTasks() {
 
-        LinearLayout activeTaskWrapperLayout = (LinearLayout) callingClassScope.pagerAdapter.findViewById(
+        LinearLayout activeTaskWrapperLayout = (LinearLayout) ((main) callingClassScope).pagerAdapter.findViewById(
                 0,
                 R.id.taskWrapperLayout
         );
 
-        LinearLayout doneTaskWrapperLayout = (LinearLayout) callingClassScope.pagerAdapter.findViewById(
+        LinearLayout doneTaskWrapperLayout = (LinearLayout) ((main) callingClassScope).pagerAdapter.findViewById(
                 1,
                 R.id.taskWrapperLayout
         );
@@ -70,7 +70,7 @@ public class TaskHandler {
                     public void onCheckedChanged(CompoundButton task, boolean isChecked) {
                         taskHandler.switchState((CheckBox) task);
 
-
+                        taskHandler.refreshTasks();
                     }
                 });
                 task.setText(c.getString(nameColIndex));
