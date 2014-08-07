@@ -5,12 +5,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.view.ViewManager;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by kirill on 8/4/14.
@@ -25,12 +21,12 @@ public class TaskHandler {
 
     public void refreshTasks() {
 
-        LinearLayout activeTaskWrapperLayout = (LinearLayout) ((main) callingClassScope).pagerAdapter.findViewById(
+        LinearLayout activeTaskWrapperLayout = (LinearLayout) ((Main) callingClassScope).pagerAdapter.findViewById(
                 0,
                 R.id.taskWrapperLayout
         );
 
-        LinearLayout doneTaskWrapperLayout = (LinearLayout) ((main) callingClassScope).pagerAdapter.findViewById(
+        LinearLayout doneTaskWrapperLayout = (LinearLayout) ((Main) callingClassScope).pagerAdapter.findViewById(
                 1,
                 R.id.taskWrapperLayout
         );
@@ -61,20 +57,24 @@ public class TaskHandler {
                     layoutToInsert = doneTaskWrapperLayout;
                 }
 
-                CheckBox task = new CheckBox(callingClassScope);
+                TaskCheckBox task = new TaskCheckBox(callingClassScope);
 
                 final TaskHandler taskHandler = this;
 
                 task.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton task, boolean isChecked) {
-                        taskHandler.switchState((CheckBox) task);
+                        taskHandler.switchState((TaskCheckBox) task);
 
                         taskHandler.refreshTasks();
                     }
                 });
+
                 task.setText(c.getString(nameColIndex));
-                task.setContentDescription("task" + c.getInt(idColIndex));
+                task.setTaskID(c.getInt(idColIndex));
+                task.setId(((Main) callingClassScope).generateViewId());
+
+                callingClassScope.registerForContextMenu(task);
 
                 layoutToInsert.addView(task);
 
@@ -112,17 +112,9 @@ public class TaskHandler {
 
     }
 
-    public void switchState(CheckBox checkBox) {
+    public void editTask(int taskID, String newName) {
 
-        //remove view
-        ((ViewManager) checkBox.getParent()).removeView(checkBox);
-
-        //get task id
-        Pattern pattern = Pattern.compile("^task((\\d+))");
-        Matcher matcher = pattern.matcher(checkBox.getContentDescription());
-
-        matcher.find();
-        String id = matcher.group(1);
+        int id = taskID;
         System.out.println("id is " + id);
 
         //create db wrapper
@@ -132,20 +124,49 @@ public class TaskHandler {
         //update task: set done=1
 
         db.execSQL(
-            " UPDATE " +
-            dbHelper.tableName +
-            " SET done = " +
-                "(CASE " +
-                    "WHEN " +
+                " UPDATE " +
+                        dbHelper.tableName +
+                        " SET taskName = " +
+                        "\"" + newName + "\" " +
+                        "WHERE " +
+                        "id = " +
+                        id
+        );
+
+        dbHelper.close();
+
+    }
+
+    public void switchState(TaskCheckBox checkBox) {
+
+        //remove view
+        ((ViewManager) checkBox.getParent()).removeView(checkBox);
+
+        int id = checkBox.getTaskID();
+        System.out.println("id is " + id);
+
+        //create db wrapper
+        DBHelper dbHelper = new DBHelper(callingClassScope);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        //update task: set done=1
+
+        db.execSQL(
+                " UPDATE " +
+                        dbHelper.tableName +
+                        " SET done = " +
+                        "(CASE " +
+                        "WHEN " +
                         "(done = 0) " +
-                    "THEN " +
+                        "THEN " +
                         "1 " +
-                    "ELSE " +
+                        "ELSE " +
                         "0 " +
-                "END) " +
-            "WHERE " +
-                "id = " +
-                id);
+                        "END) " +
+                        "WHERE " +
+                        "id = " +
+                        id
+        );
 
         dbHelper.close();
     }
