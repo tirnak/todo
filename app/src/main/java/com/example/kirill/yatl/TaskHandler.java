@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Paint;
 import android.view.ViewManager;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -49,14 +50,6 @@ public class TaskHandler {
 
             do {
 
-                LinearLayout layoutToInsert = null;
-
-                if (c.getInt(doneColIndex) == 0) {
-                    layoutToInsert = activeTaskWrapperLayout;
-                } else {
-                    layoutToInsert = doneTaskWrapperLayout;
-                }
-
                 TaskCheckBox task = new TaskCheckBox(callingClassScope);
 
                 final TaskHandler taskHandler = this;
@@ -75,6 +68,15 @@ public class TaskHandler {
                 task.setId(((Main) callingClassScope).generateViewId());
 
                 callingClassScope.registerForContextMenu(task);
+
+                LinearLayout layoutToInsert = null;
+
+                if (c.getInt(doneColIndex) == 0) {
+                    layoutToInsert = activeTaskWrapperLayout;
+                } else {
+                    layoutToInsert = doneTaskWrapperLayout;
+                    task.setPaintFlags(task.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                }
 
                 layoutToInsert.addView(task);
 
