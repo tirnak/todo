@@ -192,20 +192,22 @@ public class Main extends FragmentActivity {
        if (item.getTitle() == getString(R.string.finish_string)) {
 
             taskHandler.switchState(tcb);
+            taskHandler.refreshTasks();
 
-        } else if (item.getTitle() == getString(R.string.edit_string)) {
+       } else if (item.getTitle() == getString(R.string.edit_string)) {
 
             editTask(
                 tcb.getTaskID(),
                 (String) tcb.getText()
             );
 
-        } else if (item.getTitle() == getString(R.string.delete_string)) {
+       } else if (item.getTitle() == getString(R.string.delete_string)) {
 
-//            function2(item.getItemId());
+            taskHandler.deleteTask(tcb);
+            taskHandler.refreshTasks();
 
-        }
-        return true;
+       }
+       return true;
     }
 
     private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);

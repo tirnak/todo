@@ -137,12 +137,12 @@ public class TaskHandler {
 
     }
 
-    public void switchState(TaskCheckBox checkBox) {
+    public void switchState(TaskCheckBox tcb) {
 
         //remove view
-        ((ViewManager) checkBox.getParent()).removeView(checkBox);
+        ((ViewManager) tcb.getParent()).removeView(tcb);
 
-        int id = checkBox.getTaskID();
+        int id = tcb.getTaskID();
         System.out.println("id is " + id);
 
         //create db wrapper
@@ -163,6 +163,29 @@ public class TaskHandler {
                         "ELSE " +
                         "0 " +
                         "END) " +
+                        "WHERE " +
+                        "id = " +
+                        id
+        );
+
+        dbHelper.close();
+    }
+
+    public void deleteTask(TaskCheckBox tcb) {
+        ((ViewManager) tcb.getParent()).removeView(tcb);
+
+        int id = tcb.getTaskID();
+        System.out.println("id is " + id);
+
+        //create db wrapper
+        DBHelper dbHelper = new DBHelper(callingClassScope);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        //update task: set done=1
+
+        db.execSQL(
+                " DELETE FROM " +
+                        dbHelper.tableName + " " +
                         "WHERE " +
                         "id = " +
                         id
